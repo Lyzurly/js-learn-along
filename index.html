@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Keep Working</title>
+        <style>
+            .container{border:1px solid #000}
+            .hidden{display:none}
+            /* button{border:5px solid #ff0000}
+            .button:mouseover{border:0px solid #ff0000} */
+
+        </style> 
+
+    </head>
+    <body>
+        <div class="container">
+            <button id="button1">Press me!</button>
+            <span class="popup hidden">
+                This is a button.
+            </span> 
+            <span style="font-size: large;">More text</span>
+        </div>
+        <br>
+        
+        <div class="container"><button id="button2">Or press me!</button>
+            <span class="popup hidden">
+                This is a different button.
+            </span>
+        </div>
+
+        <script>
+            const buttons = document.querySelectorAll('button')
+            console.log(document.querySelectorAll('button'))
+            
+            buttons.forEach(button => {
+                button.addEventListener('mouseover', function(event){
+                    //Unhides a popup
+                    const container = event.target.closest('.container');
+                    const popup = container.querySelector('.popup')
+                    popup.classList.remove('hidden')
+                })});
+            
+            buttons.forEach(button => {
+                button.addEventListener('mouseout', function(event){
+                //Rehides the popup
+                const container = event.target.closest('.container');
+                const popup = container.querySelector('.popup')
+                popup.classList.add('hidden')
+                })});
+
+        </script>
+        
+    </body>
+</html>
