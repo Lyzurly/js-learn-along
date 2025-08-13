@@ -2,52 +2,53 @@
 <html lang="en">
     <head>
         <title>Keep Working</title>
-        <style>
-            .container{border:1px solid #000}
-            .hidden{display:none}
-            /* button{border:5px solid #ff0000}
-            .button:mouseover{border:0px solid #ff0000} */
-
-        </style> 
+        <link rel="stylesheet" href="style.css">
 
     </head>
     <body>
-        <div class="container">
-            <button id="button1">Press me!</button>
-            <span class="popup hidden">
-                This is a button.
-            </span> 
-            <span style="font-size: large;">More text</span>
-        </div>
-        <br>
-        
-        <div class="container"><button id="button2">Or press me!</button>
-            <span class="popup hidden">
-                This is a different button.
-            </span>
+        <div class="care_container">
+            <div class="abilities_container">
+                <span class="button_wrapper">
+                    <button id="button1">
+                        Feed
+                    </button>
+                    <span class="popup reveal">
+                        Hunger +1
+                    </span>
+                </span>
+                <span class="button_wrapper playing">
+                    <button id="button2">
+                        Play
+                    </button>
+                    <span class="popup reveal">
+                        Happiness +1
+                    </span>
+                </span>
+            </div>
+
+            <div class="stat_container">
+                <span class="stat_wrapper">
+                    FULLNESS
+                    <span class="stat_value" id="stat1">
+                        5
+                    </span>
+                </span>
+                <span class="stat_wrapper">
+                    HAPPINESS
+                    <span class="stat_value" id="stat2">
+                        5
+                    </span>
+                </span>
+                <span class="stat_wrapper">
+                    WELLBEING
+                    <span class="stat_value">
+                        10
+                    </span>
+                </span>
+            </div>
         </div>
 
-        <script>
-            const buttons = document.querySelectorAll('button')
-            console.log(document.querySelectorAll('button'))
-            
-            buttons.forEach(button => {
-                button.addEventListener('mouseover', function(event){
-                    //Unhides a popup
-                    const container = event.target.closest('.container');
-                    const popup = container.querySelector('.popup')
-                    popup.classList.remove('hidden')
-                })});
-            
-            buttons.forEach(button => {
-                button.addEventListener('mouseout', function(event){
-                //Rehides the popup
-                const container = event.target.closest('.container');
-                const popup = container.querySelector('.popup')
-                popup.classList.add('hidden')
-                })});
-
-        </script>
+        <script src="script.js"></script>
         
     </body>
 </html>
