@@ -1,0 +1,76 @@
+/* === Globals === */
+:root{
+    --border: .75px solid #bbbdff;
+
+}
+
+body{
+    background-color: #200e2e;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/* === Text Styles === */
+.text-sm{
+    font-size: .7rem; color: #bbbdff; font-weight:100;
+}
+.text-md{
+    font-size: .8rem; color: #bbbdff; font-weight:100;
+}
+.text-mdlg{
+    font-size: 1rem; color: #bbbdff; font-weight:100;
+}
+.text-lg{
+    font-size: 1.6rem; color: #bbbdff; font-weight:100;
+}
+.title-md{
+    font-size: .8rem; color: #bbbdff; font-weight:bold
+}
+
+/* === Horizontal Rules === */
+.employee-separator{
+    margin: 20px 20px;
+    height: 10px;
+    border-radius: 80%;
+    background-color: #643a525c;
+    border:none;
+}
+
+/* === Containers === */
+.employee-container{
+    border: var(--border);
+}
+.abilities-container{
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    width: 100%;
+}
+
+.stat-container{
+    padding-top: 20px;
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    text-align: center;
+}
+    
+.stat-wrapper{
+    border: var(--border);
+}
+
+/* === Buttons === */
+button{
+    background-color: #301545;
+}
+.button-wrapper{
+    position:relative;
+    margin: 10px 10px 10px 10px;
+}
+
+button:hover + .reveal {
+    display:block;
+    position: absolute
+}
+
+.reveal{
+    display:none;
+}
+/* button{border:5px solid #ff0000}

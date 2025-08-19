@@ -1,15 +1,26 @@
 
 const max_stat = 10
 const min_stat = 0
+const base_inc_stat = 5
+const base_wellbeing = 10
 
-const stats = document.querySelectorAll('.stat_value')
+const stats = document.querySelectorAll('.stat-value')
 
-setInterval(decreaseStats,1000)
+const employees_canvas = document.querySelector('.employees-canvas')
+
+addNewEmployee()
+function addNewEmployee() {
+    employees_canvas.innerHTML += employee_template
+}
+addNewEmployee()
+
+// setInterval(decreaseStats,1000)
 
 function decreaseStats() {
     stats.forEach(stat => {
         //decreasing if stat is in range
-        value = stat.innerHTML
+        let value = base_inc_stat
+        stat.innerHTML = value
         if (value > 0) {
             value--;
         }
