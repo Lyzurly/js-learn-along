@@ -1,14 +1,18 @@
 # js-learn-along
+
 Learning Javascript
 
 # Things to add
+
 ### Basics
-<li>UNique employee instantiation</li>
+
+<li>Unique employee instantiation</li>
 <li>Repair stat management</li>
 <i>Art/sprites for employees</i>
 <i>Running tally of profit earned</i>
 
 ### Stretch ideas
+
 <li>Date/Time cycles/calendar
   <ul>
     <li>Workers come and go and/or nighttime is skipped</li>

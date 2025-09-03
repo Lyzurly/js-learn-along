@@ -35,3 +35,5 @@
 //       }
 //     });
 //   });
+
+// this.ability_id = "#" + id_prefix_ability + worker_container.id;

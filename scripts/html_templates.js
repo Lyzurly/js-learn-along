@@ -9,7 +9,7 @@ const button_inc_stat = `
     `;
 
 const stat_container = `
-    <span class="title-md stat-wrapper">
+    <span class="stat-wrapper">
         INCOME
         <div class="text-lg stat-value stat-pay">
            5
