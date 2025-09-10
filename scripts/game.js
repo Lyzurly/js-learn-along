@@ -1,3 +1,5 @@
+"use strict";
+
 const workers_canvas = document.querySelector(".worker-canvas");
 
 let worker_idno_previous = -1;
@@ -15,8 +17,24 @@ const min_stat = 0;
 const base_inc_stat = 5;
 const base_wellbeing = 10;
 
+const default_tick_interval = 2;
+const default_tick_counter = default_tick_interval;
+
 const sprite_path = "assets/images/HGDEmployee.gif";
 
+const tick = new Event("tick");
+
+// === Global Interval Functions === //
+setGlobalInterval();
+function setGlobalInterval() {
+  setInterval(() => {
+    window.dispatchEvent(tick);
+  }, 500);
+}
+
+// === Worker Classes === //
+
+// ABSTRACT CLASS //
 class Worker {
   constructor(worker_id) {
     this.worker_container = create_element(
@@ -52,7 +70,6 @@ class Employee extends Worker {
 
     this.worker_interface = create_element("div", "worker-interface");
     this.stats.forEach((stat) => {
-      console.log(this);
       this.worker_interface.appendChild(stat.stat_interface);
     });
     this.worker_container.appendChild(this.worker_interface);
@@ -77,22 +94,44 @@ class TestWorker extends Worker {
   }
 }
 
+// === Hiring Buttons === //
+
 button_hire_employee.addEventListener("click", function (event) {
-  new Employee(createWorkerID());
+  workers.push(new Employee(createWorkerID()));
 });
 
 button_hire_intern.addEventListener("click", function (event) {
-  new Intern(createWorkerID());
+  workers.push(new Intern(createWorkerID()));
 });
 
 button_hire_test.addEventListener("click", function (event) {
-  new TestWorker(createWorkerID());
+  workers.push(new TestWorker(createWorkerID()));
 });
 
+// === Stat Classes === //
+
+// ABSTRACT CLASS //
 class Stat {
   constructor(worker_container) {
     this.worker_container = worker_container;
     this.stat_interface = create_element("div", "stat-interface");
+
+    this.tick_counter = default_tick_counter;
+  }
+
+  createTickListener(tick_interval = default_tick_interval) {
+    this.tick_interval = tick_interval;
+    window.addEventListener("tick", () => {
+      this.tickOnInterval(decreaseStat, this.stat_value, this.tick_interval);
+    });
+  }
+
+  tickOnInterval(fn_onTick, fn_onTickParam = null) {
+    this.tick_counter--;
+    if (this.tick_counter <= 0) {
+      this.tick_counter = this.tick_interval;
+      fn_onTick(fn_onTickParam);
+    }
   }
 
   create_stat(stat_name, ability_name = null) {
@@ -106,6 +145,7 @@ class Stat {
       "div",
       "stat-value " + this.stat_specific_class
     );
+
     this.stat_value.innerHTML = base_inc_stat;
 
     this.stat_wrapper.appendChild(this.stat_value);
@@ -118,6 +158,8 @@ class Stat {
 
     this.stat_interface.appendChild(this.stat_container);
     this.worker_container.appendChild(this.stat_interface);
+
+    return this.stat_value;
   }
 
   create_ability(ability_name, ability_specific_class) {
@@ -134,7 +176,9 @@ class Stat {
 class Duration extends Stat {
   constructor(worker_container) {
     super(worker_container);
-    this.create_stat(this.constructor.name);
+    this.stat_value = this.create_stat(this.constructor.name);
+
+    this.createTickListener();
   }
 }
 
@@ -142,7 +186,12 @@ class Income extends Stat {
   constructor(worker_container) {
     super(worker_container);
     this.ability_name = "Pay";
-    this.create_stat(this.constructor.name, this.ability_name);
+    this.stat_value = this.create_stat(
+      this.constructor.name,
+      this.ability_name
+    );
+
+    this.createTickListener();
   }
 }
 
@@ -150,7 +199,12 @@ class Happiness extends Stat {
   constructor(worker_container) {
     super(worker_container);
     this.ability_name = "Praise";
-    this.create_stat(this.constructor.name, this.ability_name);
+    this.stat_value = this.create_stat(
+      this.constructor.name,
+      this.ability_name
+    );
+
+    this.createTickListener();
   }
 }
 
@@ -158,30 +212,22 @@ class TestStat extends Stat {
   constructor(worker_container) {
     super(worker_container);
     this.ability_name = "Test";
-    this.create_stat(this.constructor.name, this.ability_name);
+    this.stat_value = this.create_stat(
+      this.constructor.name,
+      this.ability_name
+    );
+
+    this.createTickListener();
   }
 }
 
+// === Worker Management Functions === //
+
 function createWorkerID() {
-  worker_idno_current = ++worker_idno_previous;
+  let worker_idno_current = ++worker_idno_previous;
   worker_idno_previous = worker_idno_current;
 
   return id_prefix_worker + worker_idno_current.toString();
-}
-
-// const abilities_container = create_element("div", "abilities-container");
-// abilities_container.appendChild();
-
-// workers.push(new Employee(employee_id));
-// updateEmployees();
-
-// setInterval(updateEmployees, 1000);
-function updateEmployees() {
-  employees.forEach((employee) => {
-    console.log(employee.employee_id, "'s stats are ", employee.stats);
-    // console.log("Updated employee type is: ", employee.employee_id);
-    employee.updateStats();
-  });
 }
 
 function increaseStat(stat) {
@@ -192,32 +238,15 @@ function increaseStat(stat) {
   stat.innerHTML = value;
 }
 
-function decreaseStat(stat) {
-  value = Math.floor(stat.innerHTML);
+function decreaseStat(stat_value) {
+  let value = Math.floor(stat_value.innerHTML);
   if (isInRange(value)) {
     value--;
   }
-  stat.innerHTML = value;
+  stat_value.innerHTML = value;
 }
 
 // === Helper Functions === //
-
-function createOrReturnElement(
-  object_scope,
-  element_string_class,
-  element_string_type
-) {
-  let string_as_class = "." + element_string_class;
-  let found_element = object_scope.querySelector(string_as_class);
-  console.log("Finding string ", string_as_class);
-  console.log("Found element is ", found_element);
-  if (found_element) {
-    return found_element;
-  } else {
-    let new_element = create_element(element_string_type, element_string_class);
-    return new_element;
-  }
-}
 
 function isInRange(value) {
   //return if value between min and max
