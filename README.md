@@ -2,14 +2,12 @@
 
 Learning Javascript
 
-# Things to add
+# Things to do
 
 ### Basics
 
-<li>Unique employee instantiation</li>
-<li>Repair stat management</li>
-<i>Art/sprites for employees</i>
-<i>Running tally of profit earned</i>
+Running tally of profit earned
+Game over state. Can't afford state (eg disabled buttons). More price clarity. Balancing. Spritesheets. Number texts resize based on width. Juicy spend/earn/profit-vs-revenue tracking. Color-coded auras on workers that match their mood. More mobile friendly.
 
 ### Stretch ideas
 
