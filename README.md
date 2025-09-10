@@ -9,7 +9,7 @@ Learning Javascript
 <li>Unique employee instantiation</li>
 <li>Repair stat management</li>
 <i>Art/sprites for employees</i>
-<i>Running tally of profit earned</i>
+<i>Running tally of revenue earned</i>
 
 ### Stretch ideas
 

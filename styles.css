@@ -1,0 +1,330 @@
+/* Use chrome to try out things out lol */
+
+/* === Globals === */
+
+:root {
+  --main-color-rgb: 187, 189, 255;
+  --border: 0.75px solid #bbbdff;
+
+  /* == Typography == */
+
+  /* Titles */
+  --title-color: #bbbdff;
+  --title-weight: bold;
+
+  --title-size-md: 0.8rem;
+  --title-size-lg: 2.1rem;
+
+  /* Text (Main) */
+  --text-color: #bbbdff;
+  --text-weight: 100;
+
+  --text-size-md: 0.8rem;
+  --text-size-mdlg: 1rem;
+  --text-size-lg: 1.6rem;
+}
+html {
+  min-height: 100%; /* make sure it is at least as tall as the viewport */
+  position: relative;
+  scroll-behavior: smooth;
+  overflow-y: hidden;
+}
+body {
+  height: 100%; /* force the BODY element to match the height of the HTML element */
+  background-color: #200e2e;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin-left: 60px;
+  margin-right: 60px;
+}
+
+/* === Text Styles === */
+/* .text-sm {
+  font-size: 0.7rem;
+  color: #bbbdff;
+  font-weight: 100;
+}
+.text-md {
+  font-size: 0.8rem;
+  color: #bbbdff;
+  font-weight: 100;
+}
+
+/* === Horizontal Rules === */
+.employee-separator {
+  margin: 20px 20px;
+  height: 10px;
+  border-radius: 80%;
+  background-color: #643a525c;
+  border: none;
+}
+
+/* == Sidebars === */
+/* .sidebar-right {
+} */
+
+#revenue {
+  font-size: var(--title-size-lg);
+  color: var(--title-color);
+  font-weight: var(--title-weight);
+  margin-bottom: 15px;
+}
+
+.hire-cost {
+  font-size: var(--text-size-lg);
+  font-style: italic;
+  font-weight: 900;
+}
+
+/* === Containers === */
+.game-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.game-container > div:first-child {
+  grid-column: span 2;
+}
+
+.shop-container {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: stretch;
+  width: fit-content;
+  height: 50%;
+  contain: content;
+  text-align: center;
+}
+.shop-container button {
+  padding: 20px;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  html {
+    font-size: smaller;
+    min-height: 100%;
+    position: relative;
+    scroll-behavior: smooth;
+  }
+  body {
+    height: 100%; /* force the BODY element to match the height of the HTML element */
+    background-color: #200e2e;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-left: 60px;
+    margin-right: 60px;
+  }
+  .game-container {
+    display: flex;
+    flex-flow: column-reverse;
+    min-width: min-content;
+    word-break: break-all;
+    text-wrap-style: balance;
+    font: message-box;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .game-container > div:first-child {
+    grid-row: span 2;
+  }
+
+  .shop-container {
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: stretch;
+    height: 50%;
+    contain: content;
+    text-align: center;
+    width: fit-content;
+  }
+  .shop-container > :first-child {
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  .sidebar-right {
+    display: contents;
+  }
+  .worker-canvas {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+}
+
+.worker-interface {
+  display: flex;
+  align-items: flex-end;
+  height: 50%;
+}
+.worker-interface > :last-child {
+  border-left-style: inset;
+  border-color: var(--text-color);
+}
+
+.worker-canvas {
+  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  flex-direction: column;
+  height: 90vh;
+  padding-top: 30px;
+  overflow: auto;
+  overflow-x: clip;
+  justify-items: anchor-center;
+  min-width: fit-content;
+
+  /* align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  padding-top: 30px;
+  padding-right: 20px;
+  overflow: auto; */
+}
+.worker-container {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+
+  margin-bottom: 10px;
+  border-color: var(--text-color);
+  border-width: medium;
+  border-style: double;
+  box-shadow: 0 0 13px 0px #7e6c90;
+
+  /* align-items: center;
+  display: flex;
+  margin-bottom: 30px;
+  border: var(--border); */
+
+  .stat-container {
+    display: contents;
+  }
+}
+
+.worker-container.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.worker-container.fade-out {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-in, transform 0.4s ease-in;
+}
+
+.sprite-container {
+  display: flex;
+  border-style: ridge;
+  border-top-width: thick;
+  border-color: #9b7fc9;
+  box-shadow: inset 0 0 20px 3px #7e6c90;
+  justify-content: center;
+}
+.sprite-container img {
+  max-height: 30%;
+  width: auto;
+  border: var(--border);
+}
+.abilities-container {
+  display: contents;
+  width: 100%;
+}
+
+/* === Stats === */
+
+.stat-interface {
+  display: inline-grid;
+  padding: 5px;
+  text-align: center;
+
+  /* align-items: stretch;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center; */
+}
+
+.stat-wrapper {
+  padding-right: 7px;
+  padding-left: 7px;
+  /* border-left: solid;
+  border-left-width: thin;
+  border-right: solid;
+  border-right-width: thin;
+  border-bottom: solid;
+  border-bottom-width: thin;
+  border-color: var(--border); */
+  font-size: var(--title-size-md);
+  color: var(--title-color);
+  font-weight: var(--title-weight);
+}
+
+.stat-value {
+  display: block;
+  font-size: var(--text-size-lg);
+}
+
+/* === Buttons === */
+button {
+  transition: transform 0.15s ease-out;
+  border: solid;
+  border-width: thin;
+  color: var(--text-color);
+  background-color: #301545;
+  font-size: var(--text-size-mdlg);
+  font-weight: var(--text-weight);
+  margin-bottom: 5px;
+}
+
+button:active {
+  border: solid;
+  border-width: thin;
+  color: #ff7bc6;
+  background-color: #13081c;
+  transform: scale(0.89);
+}
+
+.button-text {
+  display: inline-block;
+  transition: transform 0.1s ease;
+}
+
+button:hover .button-text:not(:active) {
+  transform: scale(1.22);
+}
+
+button:hover + .reveal {
+  display: block;
+  position: absolute;
+}
+
+.reveal {
+  display: none;
+}
+/* button{border:5px solid #ff0000} */
+
+/* === Scrollbar Styling === */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--main-color-rgb), 0.6);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--main-color-rgb), 0.8);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(var(--main-color-rgb), 0.6) transparent;
+}

@@ -2,21 +2,25 @@
 <html lang="en">
   <head>
     <title>Keep Working</title>
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="game-container">
       <div class="worker-canvas"></div>
       <div class="sidebar-right">
         <div class="shop-container">
-          <span id="profit">0</span>
-          <button id="hire-employee">Hire Employee</button>
-          <button id="hire-intern">Hire Intern</button>
-          <button id="hire-test">Hire Test</button>
+          <span id="revenue"></span>
+          <button id="hire-employee">
+            <span class="button-text"> Hire Employee</span>
+            <div class="hire-cost">($<span id="employee-cost"></span>)</div>
+          </button>
+          <button id="hire-intern">
+            <span class="button-text">Hire Intern</span>
+          </button>
+          <!-- <button id="hire-test">Hire Test</button> -->
         </div>
       </div>
     </div>
-    <script src="/scripts/html_templates.js"></script>
-    <script src="/scripts/game.js"></script>
+    <script src="game.js"></script>
   </body>
 </html>
