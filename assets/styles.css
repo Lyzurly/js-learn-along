@@ -13,6 +13,7 @@
   --title-weight: bold;
 
   --title-size-md: 0.8rem;
+  --title-size-lg: 3rem;
 
   /* Text (Main) */
   --text-color: #bbbdff;
@@ -59,6 +60,13 @@ body {
 .sidebar-right {
   margin-left: 100px;
   margin-right: 30px;
+}
+
+#profit {
+  margin-right: 20px;
+  font-size: var(--title-size-lg);
+  color: var(--title-color);
+  font-weight: var(--title-weight);
 }
 
 /* === Containers === */
