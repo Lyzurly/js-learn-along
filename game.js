@@ -1,6 +1,8 @@
 "use strict";
 
-const workers_canvas = document.querySelector(".worker-canvas");
+// TODO: Game over state. Can't afford state. More price clarity. Balancing. Spritesheets. Number texts resize based on width. Juicy spend/earn/profit-vs-revenue tracking. Color-coded auras on workers that match their mood. More mobile friendly.
+
+const workers_canvas = document.querySelector(".workers-canvas");
 
 let worker_idno_previous = -1;
 let workers = [];
@@ -11,11 +13,16 @@ const class_prefix_stat = "stat-";
 const button_hire_employee = document.querySelector("#hire-employee");
 const button_hire_intern = document.querySelector("#hire-intern");
 const button_hire_test = document.querySelector("#hire-test");
+
 const eleRevenue = document.querySelector("#revenue");
 let valueRevenue = 3000;
-let factorRevenue = 50;
-const eleCost_employee = document.querySelector("#employee-cost");
-let employee_cost = 1500;
+let factorRevenue = 10000;
+
+const eleCost = document.querySelector(".cost");
+let valueCost = 0;
+
+// const eleCost_employee = document.querySelector("#employee-cost");
+let priceEmployee = 3000;
 
 const money_formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -43,7 +50,7 @@ const tick = new Event("tick");
 startingMoney();
 function startingMoney() {
   eleRevenue.innerHTML = money_formatter.format(valueRevenue);
-  eleCost_employee.innerHTML = employee_cost;
+  // eleCost_employee.innerHTML = priceEmployee;
 }
 
 setGlobalInterval();
@@ -107,10 +114,6 @@ class Worker {
   }
 
   monitorOnTick() {
-    // TODO setup increment in general, start with praise
-
-    // TODO separately readable global revenue stat (needs to be implemented good) that updates the innerHTML and can be siphoned from for payment and hiring
-
     this.latestValue_income = 0;
     if (this.stats.hasOwnProperty("income")) {
       this.latestValue_income = this.stats.income.stat_value.innerHTML;
@@ -171,16 +174,26 @@ class TestWorker extends Worker {
 
 // === Hiring Buttons === //
 
-button_hire_employee.addEventListener("click", function (event) {
-  if (canAfford(employee_cost)) {
+button_hire_employee.addEventListener("click", function () {
+  if (canAfford(priceEmployee)) {
     workers.push(new Employee(createWorkerID()));
-    spendMoney(employee_cost);
+    spendMoney(priceEmployee);
+
+    requestAnimationFrame(() => {
+      updateCanvasColumns();
+    });
   }
 });
-
-button_hire_intern.addEventListener("click", function (event) {
-  workers.push(new Intern(createWorkerID()));
+button_hire_employee.addEventListener("mouseenter", function () {
+  onButtonHover(priceEmployee);
 });
+button_hire_employee.addEventListener("mouseleave", function () {
+  onButtonUnHover(priceEmployee);
+});
+
+// button_hire_intern.addEventListener("click", function (event) {
+//   workers.push(new Intern(createWorkerID()));
+// });
 
 // button_hire_test.addEventListener("click", function (event) {
 //   workers.push(new TestWorker(createWorkerID()));
@@ -195,6 +208,8 @@ class Stat {
     worker_obj,
     max_stat = default_max_stat,
     decrement_amount = default_decrement_amount,
+    increment_amount = default_increment_amount,
+    price = null,
     tick_interval = default_tick_interval
   ) {
     this.worker_container = worker_container;
@@ -206,6 +221,12 @@ class Stat {
 
     this.decrement_amount_og = decrement_amount;
     this.decrement_amount = this.decrement_amount_og;
+
+    this.increment_amount_og = increment_amount;
+    this.increment_amount = this.increment_amount_og;
+
+    this.price_og = price;
+    this.price = this.price_og;
 
     this.tick_interval_og = tick_interval;
     this.tick_interval = this.tick_interval_og;
@@ -234,7 +255,7 @@ class Stat {
           this.worker_container.id,
           "stat-Income"
         ).innerHTML;
-        if (this.income_value < Math.floor(employee_cost / 2)) {
+        if (this.income_value < Math.floor(priceEmployee / 2)) {
           this.tick_interval = this.tick_interval_fast;
           if (this.tick_counter > this.tick_interval) {
             this.tick_counter = this.tick_interval;
@@ -242,7 +263,7 @@ class Stat {
         } else {
           this.tick_interval = this.tick_interval_og;
         }
-        if (this.income_value < Math.floor(employee_cost / 3)) {
+        if (this.income_value < Math.floor(priceEmployee / 3)) {
           this.decrement_amount = Math.floor(this.decrement_amount * 2);
         } else {
           this.decrement_amount = this.decrement_amount_og;
@@ -267,7 +288,7 @@ class Stat {
 
     switch (stat_name) {
       case "Income":
-        this.stat_value.innerHTML = employee_cost;
+        this.stat_value.innerHTML = priceEmployee;
         break;
       case "Happiness":
         this.stat_value.innerHTML = base_happiness;
@@ -298,6 +319,23 @@ class Stat {
     this.new_button_span.innerHTML = ability_name;
 
     this.new_button.appendChild(this.new_button_span);
+
+    this.new_button.addEventListener("click", () => {
+      increaseStat(this);
+    });
+
+    this.new_button.addEventListener("mouseenter", () => {
+      if (this.price) {
+        onButtonHover(this.price);
+      }
+    });
+
+    this.new_button.addEventListener("mouseleave", () => {
+      if (this.price) {
+        onButtonUnHover();
+      }
+    });
+
     this.abilities_container.appendChild(this.new_button);
 
     this.stat_interface.appendChild(this.abilities_container);
@@ -313,7 +351,15 @@ class Duration extends Stat {
 
 class Income extends Stat {
   constructor(worker_container, worker_obj) {
-    super(worker_container, worker_obj, null, 100);
+    super(
+      worker_container,
+      worker_obj,
+      null,
+      100,
+      priceEmployee / 2,
+      priceEmployee / 2,
+      default_tick_interval
+    );
     this.ability_name = "Pay";
     this.stat_value = this.create_stat(
       this.constructor.name,
@@ -324,7 +370,15 @@ class Income extends Stat {
 
 class Happiness extends Stat {
   constructor(worker_container, worker_obj) {
-    super(worker_container, worker_obj, 100, default_decrement_amount, 5);
+    super(
+      worker_container,
+      worker_obj,
+      100,
+      default_decrement_amount,
+      default_increment_amount,
+      null,
+      5
+    );
     this.ability_name = "Praise";
     this.stat_value = this.create_stat(
       this.constructor.name,
@@ -344,6 +398,25 @@ class TestStat extends Stat {
   }
 }
 
+// === UI Functions === //
+
+function onButtonHover(button_cost) {
+  eleCost.innerHTML = "-" + money_formatter.format(button_cost);
+  eleCost.classList.remove("hide");
+}
+
+function onButtonUnHover() {
+  eleCost.classList.add("hide");
+}
+
+function updateCanvasColumns() {
+  if (workers.length > 1) {
+    workers_canvas.style.gridTemplateColumns = "repeat(2, 1fr)";
+  } else {
+    workers_canvas.style.gridTemplateColumns = "repeat(1, 1fr)";
+  }
+}
+
 // === Worker Management Functions === //
 
 function removeWorker(worker_to_remove) {
@@ -357,6 +430,8 @@ function removeWorker(worker_to_remove) {
 
     worker_to_remove.worker_container.remove();
     worker_to_remove = null;
+
+    updateCanvasColumns();
   }, 400);
 }
 
@@ -367,19 +442,35 @@ function createWorkerID() {
   return id_prefix_worker + worker_idno_current.toString();
 }
 
-function increaseStat(stat_to_increase, increment_amount) {
+function increaseStat(stat_to_increase) {
   const stat_value = stat_to_increase.stat_value;
-  value = Math.floor(stat.innerHTML);
-  if (statIsInRange(stat_to_increase, value)) {
-    value += increment_amount;
+  const stat_inc_amt = stat_to_increase.increment_amount;
+  let value = Math.floor(stat_value.innerHTML);
+  const price = stat_to_increase.price;
+
+  if (price) {
+    if (canAfford(price)) {
+      spendMoney(price);
+    } else {
+      return;
+    }
   }
-  stat.innerHTML = value;
+  if (value !== stat_to_increase.max_stat) {
+    if (statIsInRange(stat_to_increase, value)) {
+      value += stat_inc_amt;
+    }
+  }
+  stat_value.innerHTML = value;
 }
 
 function decreaseStat(stat_to_decrease) {
   const stat_value = stat_to_decrease.stat_value;
   const stat_dec_amt = stat_to_decrease.decrement_amount;
   let value = Math.floor(stat_value.innerHTML);
+
+  if (stat_value.innerHTML == 0) {
+    return;
+  }
   if (stat_value.innerHTML < stat_dec_amt) {
     value = 0;
   } else {
@@ -408,7 +499,9 @@ function fetchClassEleInID(ele1_id, ele2_class) {
 function statIsInRange(stat_to_check, value) {
   //return if value between min and max
   if (stat_to_check.max_stat) {
-    return Boolean(value < stat_to_check.max_stat && value > default_min_stat);
+    return Boolean(
+      value <= stat_to_check.max_stat && value >= default_min_stat
+    );
   } else {
     return Boolean(value > default_min_stat);
   }

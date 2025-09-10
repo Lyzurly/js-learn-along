@@ -6,18 +6,23 @@
   </head>
   <body>
     <div class="game-container">
-      <div class="worker-canvas"></div>
+      <div class="workers-canvas"></div>
       <div class="sidebar-right">
         <div class="shop-container">
-          <span id="revenue"></span>
-          <button id="hire-employee">
-            <span class="button-text"> Hire Employee</span>
-            <div class="hire-cost">($<span id="employee-cost"></span>)</div>
-          </button>
-          <button id="hire-intern">
+          <div class="money-container">
+            <span id="revenue"></span>
+            <span class="cost reveal hide"></span>
+          </div>
+          <div class="shop-buttons-container">
+            <button id="hire-employee">
+              <span class="button-text"> Hire Employee</span>
+              <!-- <div class="hire-cost">($<span id="employee-cost"></span>)</div> -->
+            </button>
+            <!-- <button id="hire-intern">
             <span class="button-text">Hire Intern</span>
-          </button>
-          <!-- <button id="hire-test">Hire Test</button> -->
+          </button> -->
+            <!-- <button id="hire-test">Hire Test</button> -->
+          </div>
         </div>
       </div>
     </div>
