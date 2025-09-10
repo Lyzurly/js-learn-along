@@ -55,6 +55,15 @@ class Worker {
     this.worker_container.appendChild(this.sprite_container);
   }
 
+  createWorkerInterface(stats) {
+    this.worker_interface = create_element("div", "worker-interface");
+    stats.forEach((stat) => {
+      this.worker_interface.appendChild(stat.stat_interface);
+    });
+    this.worker_container.appendChild(this.worker_interface);
+    this.addWorkerToDOM(this.worker_container);
+  }
+
   addWorkerToDOM(worker_to_add) {
     workers_canvas.appendChild(worker_to_add);
   }
@@ -68,12 +77,7 @@ class Employee extends Worker {
       new Happiness(this.worker_container),
     ];
 
-    this.worker_interface = create_element("div", "worker-interface");
-    this.stats.forEach((stat) => {
-      this.worker_interface.appendChild(stat.stat_interface);
-    });
-    this.worker_container.appendChild(this.worker_interface);
-    this.addWorkerToDOM(this.worker_container);
+    this.createWorkerInterface(this.stats);
   }
 }
 
@@ -84,6 +88,8 @@ class Intern extends Worker {
       new Happiness(this.worker_container),
       new Duration(this.worker_container),
     ];
+
+    this.createWorkerInterface(this.stats);
   }
 }
 
@@ -91,6 +97,8 @@ class TestWorker extends Worker {
   constructor(worker_id) {
     super(worker_id);
     this.stats = [new TestStat(this.worker_container)];
+
+    this.createWorkerInterface(this.stats);
   }
 }
 
