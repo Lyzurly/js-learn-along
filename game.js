@@ -10,8 +10,6 @@ const id_prefix_worker = "worker_";
 const class_prefix_ability = "ability-";
 const class_prefix_stat = "stat-";
 
-const SPRITE_CANVAS_SIZE = 129;
-
 const button_hire_employee = document.querySelector("#hire-employee");
 const button_hire_intern = document.querySelector("#hire-intern");
 const button_hire_test = document.querySelector("#hire-test");
@@ -24,7 +22,7 @@ const eleCost = document.querySelector(".cost");
 let valueCost = 0;
 
 // const eleCost_employee = document.querySelector("#employee-cost");
-let priceEmployee = 0;
+let priceEmployee = 3000;
 
 const money_formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -45,6 +43,38 @@ const default_tick_counter = default_tick_interval;
 const default_income_tolerance = 5;
 
 const sprite_path = "HGDEmployee.gif";
+const SPRITESHEET_PATH = "assets/images/WorkerSpriteSheet.png";
+const SPRITE_CANVAS_SIZE = 128;
+
+const animationFramePositions = [];
+const animationData = [
+  {
+    name: "happy",
+    frames: 24,
+  },
+  {
+    name: "sad",
+    frames: 48,
+  },
+  {
+    name: "angry",
+    frames: 24,
+  },
+];
+
+animationData.forEach((rowData, index) => {
+  let framesInRow = {
+    positionsInRow: [],
+  };
+
+  for (let cell = 0; cell < rowData.frames; cell++) {
+    // these vars represent the top left corner of the desired sprite
+    let columnPosition = SPRITE_CANVAS_SIZE * cell;
+    let rowPosition = SPRITE_CANVAS_SIZE * index;
+    framesInRow.positionsInRow.push({ x: columnPosition, y: rowPosition });
+    animationFramePositions[rowData.name] = framesInRow;
+  }
+});
 
 const tick = new Event("tick");
 
@@ -73,26 +103,80 @@ class Worker {
       worker_id
     );
 
+    this.workerState = "happy";
+
     this.createWorkerSprite();
+
+    this.currentFrame = 0;
+    this.frameDelay = 5;
+    this.animateWorkerSprite(
+      this.workerState,
+      this.currentFrame,
+      this.frameDelay
+    );
+
     this.createTickListener();
   }
 
   createWorkerSprite() {
     this.sprite_container = create_element("div", "sprite-container");
 
-    // this.sprite_itself = create_element("img");
-    // this.sprite_itself.src = sprite_path;
-    //// this.sprite_itself.src = this.sprite_itself.src;
-
     this.sprite_canvas = create_element("canvas", "sprite-canvas");
     this.sprite_canvas.width = SPRITE_CANVAS_SIZE;
     this.sprite_canvas.height = SPRITE_CANVAS_SIZE;
     this.sprite_context = this.sprite_canvas.getContext("2d");
-    this.sprite_context.fillStyle = "red";
-    this.sprite_context.fillRect(20, 20, 100, 100);
+
+    this.workerSpritesheet = new Image();
+    this.workerSpritesheet.src = SPRITESHEET_PATH;
 
     this.sprite_container.appendChild(this.sprite_canvas);
     this.worker_container.appendChild(this.sprite_container);
+  }
+
+  animateWorkerSprite(workerState, currentFrame, frameDelay) {
+    // console.log(
+    //   "Current frame is ",
+    //   currentFrame,
+    //   "; Current state is",
+    //   workerState
+    // );
+
+    // frame increments every call
+    this.frame =
+      Math.floor(currentFrame / frameDelay) %
+      animationFramePositions[workerState].positionsInRow.length;
+    // console.log(
+    //   "Delayed frame is",
+    //   this.frame,
+    //   "based on",
+    //   animationFramePositions[workerState].positionsInRow
+    // );
+
+    this.frameOriginX = SPRITE_CANVAS_SIZE * this.frame;
+    this.frameOriginY =
+      animationFramePositions[workerState].positionsInRow[this.frame].y;
+    // console.log(
+    //   "Frame origin is (",
+    //   this.frameOriginX,
+    //   ",",
+    //   this.frameOriginY,
+    //   ")"
+    // );
+
+    this.sprite_context.drawImage(
+      this.workerSpritesheet,
+      this.frameOriginX,
+      this.frameOriginY,
+      SPRITE_CANVAS_SIZE,
+      SPRITE_CANVAS_SIZE
+    );
+    if (currentFrame > 1152) {
+      currentFrame = 0;
+    }
+
+    requestAnimationFrame(() => {
+      this.animateWorkerSprite(workerState, currentFrame, frameDelay);
+    });
   }
 
   createWorkerInterface(stats) {
@@ -113,17 +197,21 @@ class Worker {
 
   createTickListener() {
     this.workerTickListener = () => {
-      this.monitorOnTick();
+      this.assessWellbeingOnTick();
 
       Object.entries(this.stats).forEach((stat) => {
-        stat[1].tickOnInterval(decreaseStat, stat[1]);
+        // This decreases, but another one could increase
+        stat[1].updateStatIntervalOnTick(decreaseStat, stat[1]);
+
+        // see?
+        // stat[1].updateIntervalOnTick(increaseStat, stat[1]);
       });
     };
 
     window.addEventListener("tick", this.workerTickListener);
   }
 
-  monitorOnTick() {
+  assessWellbeingOnTick() {
     this.latestValue_income = 0;
     if (this.stats.hasOwnProperty("income")) {
       this.latestValue_income = this.stats.income.stat_value.innerHTML;
@@ -144,7 +232,15 @@ class Worker {
     eleRevenue.innerHTML = this.newRevenue;
 
     if (this.latestValue_happiness <= 0 && this.latestValue_income <= 0) {
+      // Worker quits
       removeWorker(this);
+
+      // } else if (this.latestValue_income < priceEmployee){
+      //   // Worker is sad
+      //   this.workerState = "sad"
+
+      // } else {
+      //   this.workerState = "happy"
     }
   }
 }
@@ -245,10 +341,11 @@ class Stat {
     this.tick_counter = this.tick_interval;
   }
 
-  tickOnInterval(fn_onInterval, fn_onIntervalParam1 = null) {
+  // Calls fn_onInterval on interval, with the parameter fn_onIntervalParam1
+  updateStatIntervalOnTick(fn_onInterval, fn_onIntervalParam1 = null) {
     if (!workers.includes(this.worker_obj)) return;
 
-    this.adjustInterval(this.constructor.name);
+    this.adjustIntervalAndState(this.constructor.name);
 
     this.tick_counter--;
     if (this.tick_counter <= 0) {
@@ -258,26 +355,44 @@ class Stat {
     }
   }
 
-  adjustInterval(stat_name) {
+  adjustIntervalAndState(stat_name) {
+    // Speed up the decrease of happiness
+    // Adjust worker state based on that
     switch (stat_name) {
       case "Happiness":
         this.income_value = fetchClassEleInID(
           this.worker_container.id,
           "stat-Income"
         ).innerHTML;
+
+        //#region Sad consequence, or undo sad consequence
         if (this.income_value < Math.floor(priceEmployee / 2)) {
+          // Worker sad
+          this.workerState = "sad";
+          // console.log("Worker state set to", this.workerState);
           this.tick_interval = this.tick_interval_fast;
           if (this.tick_counter > this.tick_interval) {
             this.tick_counter = this.tick_interval;
           }
         } else {
+          // Worker happy
+          this.workerState = "happy";
+          // console.log("Worker state set to", this.workerState);
           this.tick_interval = this.tick_interval_og;
         }
+        //#endregion
+
+        //#region Angry consequence, or undo angry consequence
         if (this.income_value < Math.floor(priceEmployee / 3)) {
+          // Worker angry
+          this.workerState = "angry";
+          // console.log("Worker state set to", this.workerState);
           this.decrement_amount = Math.floor(this.decrement_amount * 2);
         } else {
           this.decrement_amount = this.decrement_amount_og;
         }
+        //#endregion
+
         break;
       default:
       //

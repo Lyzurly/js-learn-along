@@ -2,6 +2,10 @@
 
 Learning Javascript
 
+# Notes
+
+Revenue per worker = Current income / 10000 + Current Happiness
+
 # Things to do
 
 ### Basics
