@@ -10,6 +10,8 @@ const id_prefix_worker = "worker_";
 const class_prefix_ability = "ability-";
 const class_prefix_stat = "stat-";
 
+const SPRITE_CANVAS_SIZE = 129;
+
 const button_hire_employee = document.querySelector("#hire-employee");
 const button_hire_intern = document.querySelector("#hire-intern");
 const button_hire_test = document.querySelector("#hire-test");
@@ -22,7 +24,7 @@ const eleCost = document.querySelector(".cost");
 let valueCost = 0;
 
 // const eleCost_employee = document.querySelector("#employee-cost");
-let priceEmployee = 3000;
+let priceEmployee = 0;
 
 const money_formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -77,11 +79,19 @@ class Worker {
 
   createWorkerSprite() {
     this.sprite_container = create_element("div", "sprite-container");
-    this.sprite_itself = create_element("img");
-    this.sprite_itself.src = sprite_path;
-    this.sprite_itself.src = this.sprite_itself.src;
 
-    this.sprite_container.appendChild(this.sprite_itself);
+    // this.sprite_itself = create_element("img");
+    // this.sprite_itself.src = sprite_path;
+    //// this.sprite_itself.src = this.sprite_itself.src;
+
+    this.sprite_canvas = create_element("canvas", "sprite-canvas");
+    this.sprite_canvas.width = SPRITE_CANVAS_SIZE;
+    this.sprite_canvas.height = SPRITE_CANVAS_SIZE;
+    this.sprite_context = this.sprite_canvas.getContext("2d");
+    this.sprite_context.fillStyle = "red";
+    this.sprite_context.fillRect(20, 20, 100, 100);
+
+    this.sprite_container.appendChild(this.sprite_canvas);
     this.worker_container.appendChild(this.sprite_container);
   }
 
