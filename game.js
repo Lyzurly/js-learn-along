@@ -2,6 +2,8 @@
 
 // TODO: Game over state. Can't afford state. More price clarity. Balancing. Spritesheets. Number texts resize based on width. Juicy spend/earn/profit-vs-revenue tracking. Color-coded auras on workers that match their mood. More mobile friendly.
 
+// ATTENTION: a closure can mean that an arrow function is remembering the surrounding scope where it was created. And you should remember that
+
 const workers_canvas = document.querySelector(".workers-canvas");
 
 let worker_idno_previous = -1;
@@ -76,8 +78,6 @@ animationData.forEach((rowData, index) => {
   }
 });
 
-const tick = new Event("tick");
-
 // === Global Functions === //
 startingMoney();
 function startingMoney() {
@@ -85,11 +85,20 @@ function startingMoney() {
   // eleCost_employee.innerHTML = priceEmployee;
 }
 
+const tick = new Event("tick");
 setGlobalInterval();
 function setGlobalInterval() {
   setInterval(() => {
     window.dispatchEvent(tick);
   }, 500);
+}
+
+const animationTick = new Event("animationTick");
+setAnimationTick();
+function setAnimationTick() {
+  setInterval(() => {
+    window.dispatchEvent(animationTick);
+  }, 1);
 }
 
 // === Worker Classes === //
@@ -115,7 +124,7 @@ class Worker {
       this.frameDelay
     );
 
-    this.createTickListener();
+    this.createTickListeners();
   }
 
   createWorkerSprite() {
@@ -133,7 +142,7 @@ class Worker {
     this.worker_container.appendChild(this.sprite_container);
   }
 
-  animateWorkerSprite(workerState, currentFrame, frameDelay) {
+  animateWorkerSprite() {
     // console.log(
     //   "Current frame is ",
     //   currentFrame,
@@ -143,8 +152,8 @@ class Worker {
 
     // frame increments every call
     this.frame =
-      Math.floor(currentFrame / frameDelay) %
-      animationFramePositions[workerState].positionsInRow.length;
+      Math.floor(this.currentFrame / this.frameDelay) %
+      animationFramePositions[this.workerState].positionsInRow.length;
     // console.log(
     //   "Delayed frame is",
     //   this.frame,
@@ -154,14 +163,14 @@ class Worker {
 
     this.frameOriginX = SPRITE_CANVAS_SIZE * this.frame;
     this.frameOriginY =
-      animationFramePositions[workerState].positionsInRow[this.frame].y;
-    // console.log(
-    //   "Frame origin is (",
-    //   this.frameOriginX,
-    //   ",",
-    //   this.frameOriginY,
-    //   ")"
-    // );
+      animationFramePositions[this.workerState].positionsInRow[this.frame].y;
+    console.log(
+      "Frame origin is (",
+      this.frameOriginX,
+      ",",
+      this.frameOriginY,
+      ")"
+    );
 
     this.sprite_context.drawImage(
       this.workerSpritesheet,
@@ -170,13 +179,11 @@ class Worker {
       SPRITE_CANVAS_SIZE,
       SPRITE_CANVAS_SIZE
     );
-    if (currentFrame > 1152) {
-      currentFrame = 0;
+    if (this.currentFrame > 1152) {
+      this.currentFrame = 0;
     }
 
-    requestAnimationFrame(() => {
-      this.animateWorkerSprite(workerState, currentFrame, frameDelay);
-    });
+    this.currentFrame++;
   }
 
   createWorkerInterface(stats) {
@@ -195,7 +202,7 @@ class Worker {
     });
   }
 
-  createTickListener() {
+  createTickListeners() {
     this.workerTickListener = () => {
       this.assessWellbeingOnTick();
 
@@ -208,6 +215,11 @@ class Worker {
       });
     };
 
+    this.animationTickListener = () => {
+      this.animateWorkerSprite();
+    };
+
+    window.addEventListener("animationTick", this.animationTickListener);
     window.addEventListener("tick", this.workerTickListener);
   }
 
@@ -231,7 +243,7 @@ class Worker {
 
     eleRevenue.innerHTML = this.newRevenue;
 
-    if (this.latestValue_happiness <= 0 && this.latestValue_income <= 0) {
+    if (this.latestValue_happiness <= 40 && this.latestValue_income <= 2000) {
       // Worker quits
       removeWorker(this);
 
@@ -551,6 +563,10 @@ function removeWorker(worker_to_remove) {
       (worker_in_array) => worker_in_array !== worker_to_remove
     );
 
+    window.removeEventListener(
+      "animationTick",
+      worker_to_remove.animationTickListener
+    );
     window.removeEventListener("tick", worker_to_remove.workerTickListener);
 
     worker_to_remove.worker_container.remove();
