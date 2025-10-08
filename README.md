@@ -1,17 +1,15 @@
 # js-learn-along
 
-Learning Javascript
+I'm learning JavaScript with a clicker tycoon game.
 
-# Notes
-
-Revenue per worker = Current income / 10000 + Current Happiness
+Massive thanks to PawnXPawn for the art, animation, and spritsheet code.
 
 # Things to do
 
 ### Basics
 
 Running tally of profit earned
-Game over state. Can't afford state (eg disabled buttons). More price clarity. Balancing. Spritesheets!!!!! Number texts resize based on width. Juicy spend/earn/profit-vs-revenue tracking. Color-coded auras on workers that match their mood. More mobile friendly.
+Game over state. Can't afford state (eg disabled buttons). More price clarity. Balancing. Number texts resize based on width? Juicy spend/earn/profit-vs-revenue tracking. Color-coded auras on workers that match their mood. More mobile friendly.
 
 ### Stretch ideas
 

@@ -44,8 +44,7 @@ const default_tick_interval = 2;
 const default_tick_counter = default_tick_interval;
 const default_income_tolerance = 5;
 
-const sprite_path = "HGDEmployee.gif";
-const SPRITESHEET_PATH = "assets/images/WorkerSpriteSheet.png";
+const SPRITESHEET_PATH = "WorkerSpriteSheet.png";
 const SPRITE_CANVAS_SIZE = 128;
 
 const animationFramePositions = [];
