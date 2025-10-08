@@ -117,12 +117,8 @@ class Worker {
     this.createWorkerSprite();
 
     this.currentFrame = 0;
-    this.frameDelay = 5;
-    this.animateWorkerSprite(
-      this.workerState,
-      this.currentFrame,
-      this.frameDelay
-    );
+    this.frameDelay = 15;
+    this.animateWorkerSprite();
 
     this.createTickListeners();
   }
@@ -143,47 +139,61 @@ class Worker {
   }
 
   animateWorkerSprite() {
-    // console.log(
-    //   "Current frame is ",
-    //   currentFrame,
-    //   "; Current state is",
-    //   workerState
-    // );
+    // console.log("; Current state is", this.workerState);
+
+    // TODO: Reconsider some of the setup here on state change,
+    // so it actually WAITS to change the animation
+    // at the end of the loop!
+    this.workerStateChange = false;
+    this.currentWorkerState = null;
+    if (
+      this.currentWorkerState &&
+      this.currentWorkerState != this.workerState
+    ) {
+      this.workerStateChange = true;
+    } else {
+      this.workerStateChange = false;
+    }
 
     // frame increments every call
-    this.frame =
-      Math.floor(this.currentFrame / this.frameDelay) %
+    this.rowLength =
       animationFramePositions[this.workerState].positionsInRow.length;
-    // console.log(
-    //   "Delayed frame is",
-    //   this.frame,
-    //   "based on",
-    //   animationFramePositions[workerState].positionsInRow
-    // );
+    this.frame =
+      Math.floor(this.currentFrame / this.frameDelay) % this.rowLength;
+    if (this.frame == this.rowLength - 1) {
+      if (this.canLoopAnimation(this.workerStateChange)) {
+        this.currentFrame = 0;
+      }
+    }
 
     this.frameOriginX = SPRITE_CANVAS_SIZE * this.frame;
     this.frameOriginY =
       animationFramePositions[this.workerState].positionsInRow[this.frame].y;
-    console.log(
-      "Frame origin is (",
-      this.frameOriginX,
-      ",",
-      this.frameOriginY,
-      ")"
-    );
 
+    if (this.currentFrame > 1152) {
+      this.currentFrame = 0;
+    }
     this.sprite_context.drawImage(
       this.workerSpritesheet,
       this.frameOriginX,
       this.frameOriginY,
       SPRITE_CANVAS_SIZE,
+      SPRITE_CANVAS_SIZE,
+      0,
+      0,
+      SPRITE_CANVAS_SIZE,
       SPRITE_CANVAS_SIZE
     );
-    if (this.currentFrame > 1152) {
-      this.currentFrame = 0;
-    }
 
     this.currentFrame++;
+  }
+
+  setWorkerState(state) {
+    this.workerState = state;
+  }
+
+  canLoopAnimation(onStateChange) {
+    return onStateChange || this.currentFrame > 1000;
   }
 
   createWorkerInterface(stats) {
@@ -243,7 +253,7 @@ class Worker {
 
     eleRevenue.innerHTML = this.newRevenue;
 
-    if (this.latestValue_happiness <= 40 && this.latestValue_income <= 2000) {
+    if (this.latestValue_happiness <= 0 && this.latestValue_income <= 0) {
       // Worker quits
       removeWorker(this);
 
@@ -380,15 +390,15 @@ class Stat {
         //#region Sad consequence, or undo sad consequence
         if (this.income_value < Math.floor(priceEmployee / 2)) {
           // Worker sad
-          this.workerState = "sad";
-          // console.log("Worker state set to", this.workerState);
+          this.worker_obj.setWorkerState("sad");
+
           this.tick_interval = this.tick_interval_fast;
           if (this.tick_counter > this.tick_interval) {
             this.tick_counter = this.tick_interval;
           }
         } else {
           // Worker happy
-          this.workerState = "happy";
+          this.worker_obj.setWorkerState("happy");
           // console.log("Worker state set to", this.workerState);
           this.tick_interval = this.tick_interval_og;
         }
@@ -397,7 +407,7 @@ class Stat {
         //#region Angry consequence, or undo angry consequence
         if (this.income_value < Math.floor(priceEmployee / 3)) {
           // Worker angry
-          this.workerState = "angry";
+          this.worker_obj.setWorkerState("angry");
           // console.log("Worker state set to", this.workerState);
           this.decrement_amount = Math.floor(this.decrement_amount * 2);
         } else {
